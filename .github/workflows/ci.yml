@@ -1,0 +1,38 @@
+# This is the name of your GitHub Actions workflow.
+name: Java CI with Maven
+
+# This section defines when the workflow will run.
+on:
+  # Run it on pushes to the 'main' branch.
+  push:
+    branches: [ "main" ]
+  # Also run it on pull requests that target the 'main' branch.
+  pull_request:
+    branches: [ "main" ]
+
+# This section defines the jobs that will be executed.
+jobs:
+  # We have one job called 'build'.
+  build:
+    # The type of virtual machine to run the job on. 'ubuntu-latest' is standard.
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out your repository's code so the workflow can access it.
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up the Java Development Kit (JDK).
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin' # A popular, free distribution of Java
+          cache: maven # Cache Maven dependencies to speed up future builds
+
+      # Step 3: Build the project and run tests with Maven.
+      - name: Build and Test with Maven
+        # This command does everything: it compiles, runs all JUnit tests,
+        # and packages the application into a .war file.
+        # If any test fails, this step will fail, and the workflow will stop.
+        run: mvn -B package --file pom.xml

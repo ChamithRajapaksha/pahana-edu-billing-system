@@ -1,0 +1,200 @@
+/* ---- Google Font Import ---- */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ---- General Body and Layout Styling ---- */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #1a1a2e; /* Dark blue background */
+    color: #e0e0e0;
+    margin: 0;
+    min-height: 100vh;
+}
+
+.page-wrapper {
+    display: flex;
+}
+
+.main-content {
+    flex-grow: 1;
+    padding: 2rem;
+    overflow-y: auto;
+    height: 100vh;
+}
+
+.header-bar {
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 2rem;
+}
+
+/* ---- Modern Sidebar Styling ---- */
+.sidebar {
+    width: 280px;
+    background: linear-gradient(180deg, #16222A 0%, #3A6073 100%);
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+    transition: width 0.3s ease;
+}
+
+.sidebar-header {
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1rem;
+    font-weight: 500;
+    padding: 12px 15px;
+    margin-bottom: 5px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.sidebar .nav-link i {
+    margin-right: 12px;
+    font-size: 1.2rem;
+    width: 25px;
+    text-align: center;
+}
+
+.sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sidebar .nav-link.active {
+    background: linear-gradient(90deg, #11998e, #38ef7d);
+    color: #ffffff;
+    font-weight: 600;
+    box-shadow: 0 4px 10px rgba(22, 233, 158, 0.3);
+}
+
+.sidebar hr {
+    border-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ---- User Profile Dropdown ---- */
+.dropdown-toggle::after {
+    display: none; /* Hide default bootstrap arrow */
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* ---- Gradient Statistic Cards (REVISED SECTION) ---- */
+.stat-card {
+    border: none;
+    border-radius: 15px;
+    color: #fff;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    min-height: 160px; /* Ensures all cards have a consistent height */
+}
+
+.stat-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2) !important;
+}
+
+.stat-card .card-body {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 1.5rem; /* Increased padding for better spacing */
+}
+
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0) 70%);
+    transition: opacity 0.5s ease;
+    opacity: 0;
+}
+
+.stat-card:hover::before {
+    opacity: 1;
+}
+
+/* Card Gradient Styles */
+.gradient-1 { background: linear-gradient(45deg, #6a11cb 0%, #2575fc 100%); }
+.gradient-2 { background: linear-gradient(45deg, #fc5c7d 0%, #6a82fb 100%); }
+.gradient-3 { background: linear-gradient(45deg, #ffb75e 0%, #ed8f03 100%); }
+.gradient-4 { background: linear-gradient(45deg, #4776E6 0%, #8E54E9 100%); }
+
+.stat-card .icon-bg {
+    font-size: 1.8rem; /* Slightly smaller for better balance */
+    padding: 15px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stat-card h4 {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.stat-card .small-text {
+    text-decoration: none;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 5px 12px;
+    border-radius: 20px; /* Pill shape */
+    background-color: rgba(0, 0, 0, 0.2);
+    align-self: flex-start; /* Aligns the link to the left bottom */
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.stat-card .small-text:hover {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #1a1a2e;
+}
+
+.stat-card .small-text i {
+    vertical-align: middle; /* Aligns the arrow icon better */
+}
+
+.text-white-75 { color: rgba(255, 255, 255, 0.75) !important; }
+.text-white-50 { color: rgba(255, 255, 255, 0.5) !important; }
+
+/* ---- Responsive Adjustments ---- */
+@media (max-width: 768px) {
+    .page-wrapper {
+        flex-direction: column;
+    }
+    .sidebar {
+        width: 100%;
+        height: auto;
+        flex-direction: row !important;
+        align-items: center;
+        padding: 0.5rem 1rem !important;
+    }
+    .sidebar .nav, .sidebar hr, .sidebar .dropdown {
+        display: none;
+    }
+    .sidebar .sidebar-header {
+        font-size: 1.2rem;
+    }
+    .main-content {
+        height: auto;
+    }
+}
+
+/* ---- Visibility Fix for Muted Text ---- */
+.main-content .text-muted {
+    color: rgba(224, 224, 224, 0.65) !important; /* A lighter, slightly transparent grey */
+}
