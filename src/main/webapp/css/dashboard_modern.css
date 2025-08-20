@@ -273,6 +273,69 @@ body {
   color: rgba(255, 255, 255, 0.4);
 }
 
+/* ---- Styling for User Role Badges ---- */
+.table .badge {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    border-radius: 5px;
+}
+
+.table .badge.role-admin {
+    background-color: #fc5c7d; /* A gradient color */
+    color: #ffffff;
+}
+
+.table .badge.role-cashier {
+    background-color: #6a82fb; /* A different gradient color */
+    color: #ffffff;
+}
+
+/* ---- Styling for Billing Page & Reports ---- */
+.data-card .card-header {
+    font-weight: 600;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    /* VISIBILITY FIX: Make card header text lighter */
+    color: rgba(255, 255, 255, 0.85);
+}
+
+#bill-summary-table .total-row {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#bill-summary-table td {
+    border: none;
+}
+
+.list-group-item {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #e0e0e0;
+}
+.list-group-item .badge {
+    background-color: #6a82fb; /* Matching badge color */
+}
+
+/* VISIBILITY FIX: Make form labels in cards lighter */
+.data-card .form-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.form-select {
+    background-color: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+}
+
+.form-select:focus {
+    border-color: #8E54E9;
+    box-shadow: 0 0 0 0.25rem rgba(142, 84, 233, 0.25);
+}
+
 /* ---- Responsive Adjustments ---- */
 @media (max-width: 768px) {
     .page-wrapper {
