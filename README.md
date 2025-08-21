@@ -9,13 +9,12 @@
 
 A **3‑tier** Java web app for a bookstore’s POS and admin operations: secure auth, customer & item management, transactional billing, and a small REST API.
 
-> This README is formatted in **Markdown**. Make sure the filename is exactly `README.md` in the **root** of the repo.
 
 ---
 
 ## Screenshots
 
-> Put images in `docs/images/` before using these links.
+
 
 **Login**  
 ![Login](docs/images/login.png)
