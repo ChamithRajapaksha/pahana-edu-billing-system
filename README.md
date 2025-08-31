@@ -27,6 +27,12 @@ A **3‑tier** Java web app for a bookstore’s POS and admin operations: secure
 
 ---
 
+## Screens & Demo
+[▶️ Watch full demo (MP4)](docs/media/demo.mp4)
+
+
+[Quick preview](docs/media/demo.gif)
+
 ## Features
 
 - **Authentication & Roles:** Admin/Cashier with password hashing; guards `/admin/*`
