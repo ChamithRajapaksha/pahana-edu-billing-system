@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%@ taglib prefix="c"   uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <%-- Security Check --%>
 <%
@@ -54,10 +54,11 @@
                                     <tbody>
                                         <c:forEach var="bill" items="${recentBills}">
                                             <tr>
-                                                <td><a href="viewBill?billId=${bill.billId}" class="text-light">#${bill.billId}</a></td>
+                                                <%-- This correctly links to the viewBill servlet with the String ID --%>
+                                                <td><a href="viewBill?billId=${bill.billId}" class="table-link">${bill.billId}</a></td>
                                                 <td><fmt:formatDate value="${bill.billDate}" pattern="yyyy-MM-dd"/></td>
                                                 <td><c:out value="${bill.customerName}"/></td>
-                                                <td class="text-end"><fmt:formatNumber value="${bill.totalAmount}" type="currency" currencySymbol="LKR "/></td>
+                                                <td class="text-end"><fmt:formatNumber value="${bill.totalAmount}" type="currency" currencySymbol="Rs. "/></td>
                                             </tr>
                                         </c:forEach>
                                     </tbody>
@@ -76,7 +77,7 @@
                                 <c:forEach var="entry" items="${topSellingItems}">
                                     <li class="list-group-item d-flex justify-content-between align-items-center">
                                         <c:out value="${entry.key}"/>
-                                        <span class="badge rounded-pill"><c:out value="${entry.value}"/> sold</span>
+                                        <span class="badge rounded-pill bg-primary"><c:out value="${entry.value}"/> sold</span>
                                     </li>
                                 </c:forEach>
                             </ul>

@@ -1,5 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib prefix="c"   uri="jakarta.tags.core" %>
 
 <%-- Security Check: Ensure user is a logged-in ADMIN --%>
 <%
@@ -32,7 +32,7 @@
 <body>
 
 <div class="page-wrapper">
-    <%-- Sidebar is included here --%>
+    <%-- Sidebar  --%>
     <jsp:include page="sidebar.jsp">
         <jsp:param name="activePage" value="customers"/>
     </jsp:include>
@@ -43,6 +43,16 @@
                 <h1 class="h2 mb-0">Manage Customers</h1>
                 <p class="text-muted">Add, edit, or view customer details.</p>
             </div>
+
+            <c:if test="${not empty sessionScope.flashMessage}">
+                <div class="alert alert-${sessionScope.flashMessageType} alert-dismissible fade show" role="alert">
+                    <c:out value="${sessionScope.flashMessage}"/>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                <%-- Remove attributes after displaying --%>
+                <% session.removeAttribute("flashMessage"); %>
+                <% session.removeAttribute("flashMessageType"); %>
+            </c:if>
 
             <button class="btn btn-primary gradient-button mb-4" data-bs-toggle="modal" data-bs-target="#addCustomerModal">
                 <i class="bi bi-person-plus-fill me-2"></i>Add New Customer
@@ -55,7 +65,7 @@
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Name</th>
+                                    <th>Full Name</th>
                                     <th>Email</th>
                                     <th>Telephone</th>
                                     <th>NIC</th>
@@ -66,7 +76,7 @@
                                 <c:forEach var="customer" items="${customerList}">
                                     <tr>
                                         <td><c:out value="${customer.customerId}" /></td>
-                                        <td><c:out value="${customer.firstName} ${customer.lastName}" /></td>
+                                        <td><c:out value="${customer.fullName}" /></td>
                                         <td><c:out value="${customer.email}" /></td>
                                         <td><c:out value="${customer.telephone}" /></td>
                                         <td><c:out value="${customer.nicNumber}" /></td>
@@ -75,8 +85,7 @@
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#editCustomerModal"
                                                     data-customer-id="${customer.customerId}"
-                                                    data-customer-firstname="${customer.firstName}"
-                                                    data-customer-lastname="${customer.lastName}"
+                                                    data-customer-fullname="${customer.fullName}"
                                                     data-customer-nic="${customer.nicNumber}"
                                                     data-customer-email="${customer.email}"
                                                     data-customer-address="${customer.address}"
@@ -87,7 +96,7 @@
                                                     data-bs-toggle="modal"
                                                     data-bs-target="#deleteCustomerModal"
                                                     data-customer-id="${customer.customerId}"
-                                                    data-customer-name="${customer.firstName} ${customer.lastName}">
+                                                    data-customer-name="${customer.fullName}">
                                                 <i class="bi bi-trash-fill"></i>
                                             </button>
                                         </td>
@@ -102,7 +111,6 @@
     </main>
 </div>
 
-    <!-- Add Customer Modal -->
     <div class="modal fade" id="addCustomerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -113,10 +121,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">First Name</label><input type="text" class="form-control" name="firstName" required></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Last Name</label><input type="text" class="form-control" name="lastName" required></div>
-                        </div>
+                        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" name="fullName" required></div>
                         <div class="mb-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email"></div>
                         <div class="mb-3"><label class="form-label">Telephone</label><input type="text" class="form-control" name="telephone"></div>
                         <div class="mb-3"><label class="form-label">NIC Number</label><input type="text" class="form-control" name="nicNumber"></div>
@@ -131,7 +136,6 @@
         </div>
     </div>
 
-    <!-- Edit Customer Modal -->
     <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -143,10 +147,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                         <div class="row">
-                            <div class="col-md-6 mb-3"><label class="form-label">First Name</label><input type="text" class="form-control" name="firstName" id="editFirstName" required></div>
-                            <div class="col-md-6 mb-3"><label class="form-label">Last Name</label><input type="text" class="form-control" name="lastName" id="editLastName" required></div>
-                        </div>
+                        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" class="form-control" name="fullName" id="editFullName" required></div>
                         <div class="mb-3"><label class="form-label">Email Address</label><input type="email" class="form-control" name="email" id="editEmail"></div>
                         <div class="mb-3"><label class="form-label">Telephone</label><input type="text" class="form-control" name="telephone" id="editTelephone"></div>
                         <div class="mb-3"><label class="form-label">NIC Number</label><input type="text" class="form-control" name="nicNumber" id="editNicNumber"></div>
@@ -161,7 +162,6 @@
         </div>
     </div>
     
-    <!-- Delete Customer Modal -->
     <div class="modal fade" id="deleteCustomerModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -192,14 +192,13 @@
             const button = event.relatedTarget;
             // Populate the form fields with data from the data-* attributes
             editCustomerModal.querySelector('#editCustomerId').value = button.getAttribute('data-customer-id');
-            editCustomerModal.querySelector('#editFirstName').value = button.getAttribute('data-customer-firstname');
-            editCustomerModal.querySelector('#editLastName').value = button.getAttribute('data-customer-lastname');
+            editCustomerModal.querySelector('#editFullName').value = button.getAttribute('data-customer-fullname');
             editCustomerModal.querySelector('#editEmail').value = button.getAttribute('data-customer-email');
             editCustomerModal.querySelector('#editTelephone').value = button.getAttribute('data-customer-telephone');
             editCustomerModal.querySelector('#editNicNumber').value = button.getAttribute('data-customer-nic');
             editCustomerModal.querySelector('#editAddress').value = button.getAttribute('data-customer-address');
         });
-
+        
         // JavaScript to populate the Delete Modal
         const deleteCustomerModal = document.getElementById('deleteCustomerModal');
         deleteCustomerModal.addEventListener('show.bs.modal', event => {

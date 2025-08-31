@@ -12,8 +12,8 @@ public class DBConnection {
 
     // IMPORTANT: Make sure this URL, user, and password are correct for your MySQL setup.
     private static final String URL = "jdbc:mysql://localhost:3306/pahana_edu_db?useSSL=false";
-    private static final String USER = "root"; // <-- CHANGE THIS
-    private static final String PASSWORD = "1234"; // <-- CHANGE THIS
+    private static final String USER = "root"; // <-- CHANGE THIS IF NEEDED
+    private static final String PASSWORD = "1234"; // <-- CHANGE THIS IF NEEDED
 
     private DBConnection() throws SQLException {
         try {
@@ -23,17 +23,13 @@ public class DBConnection {
             // Attempt to establish the connection
             this.connection = DriverManager.getConnection(URL, USER, PASSWORD);
             
-            // --- DEBUGGING LINE ---
-            // This message will print to the console if the connection is successful.
             System.out.println(">>> DATABASE CONNECTION SUCCESSFUL! <<<");
             
         } catch (ClassNotFoundException e) {
-            // This error happens if the mysql-connector-java JAR is missing.
             System.err.println("!!! DATABASE ERROR: MySQL JDBC Driver not found. !!!");
             e.printStackTrace();
             throw new SQLException("MySQL JDBC Driver not found.", e);
         } catch (SQLException e) {
-            // This error happens if the URL, username, or password is wrong.
             System.err.println("!!! DATABASE CONNECTION FAILED! Check URL, username, and password. !!!");
             e.printStackTrace();
             throw e;
@@ -54,5 +50,18 @@ public class DBConnection {
             }
         }
         return dbInstance;
+    }
+    
+    /**
+     * NEW METHOD: Closes the database connection.
+     * This is called by the AppContextListener when the application shuts down
+     * to prevent memory leaks.
+     * @throws SQLException if a database access error occurs.
+     */
+    public void closeConnection() throws SQLException {
+        if (this.connection != null && !this.connection.isClosed()) {
+            this.connection.close();
+            System.out.println(">>> DATABASE CONNECTION CLOSED! <<<");
+        }
     }
 }

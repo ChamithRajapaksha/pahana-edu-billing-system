@@ -1,3 +1,4 @@
+
 package com.pahana.edu.dao;
 
 import com.pahana.edu.db.DBConnection;
@@ -7,138 +8,185 @@ import com.pahana.edu.model.BillItem;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BillDAOImpl implements BillDAO {
 
-    /**
-     * Saves a bill and its associated items to the database within a single transaction.
-     * If any part of the save fails, the entire transaction is rolled back.
-     * @param bill The Bill object to save.
-     * @return The ID of the newly created bill.
-     * @throws SQLException if a database access error occurs.
-     */
-    @Override
-    public int saveBill(Bill bill) throws SQLException {
-        Connection conn = null;
-        int billId = -1; // Initialize billId to an invalid value
+	@Override
+	public String generateNewBillId() {
+	    String seed = "BIID01";
+	    String sql = "SELECT bill_id FROM bills ORDER BY bill_id DESC LIMIT 1";
+	    try (Connection conn = DBConnection.getInstance().getConnection();
+	         PreparedStatement ps = conn.prepareStatement(sql);
+	         ResultSet rs = ps.executeQuery()) {
 
+	        if (rs.next()) {
+	            String last = rs.getString(1);
+	            if (last != null && !last.trim().isEmpty()) {
+	                Pattern p = Pattern.compile("(\\d+)$");
+	                Matcher m = p.matcher(last.trim());
+	                if (m.find()) {
+	                    int next = Integer.parseInt(m.group(1)) + 1;
+	                    String prefix = last.substring(0, m.start(1));
+	                    if (prefix.isEmpty()) {
+	                        prefix = "BIID";
+	                    }
+	                    int width = m.group(1).length();
+	                    if (width < 2) {
+	                        width = 2;
+	                    }
+	                    return String.format("%s%0" + width + "d", prefix, next);
+	                }
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return seed;
+	}
+
+    @Override
+    public String saveBill(Bill bill) throws SQLException {
+        if (bill == null) throw new IllegalArgumentException("bill cannot be null");
+
+        if (bill.getBillId() == null || bill.getBillId().trim().isEmpty()) {
+            bill.setBillId(generateNewBillId());
+        }
+        String billId = bill.getBillId();
+
+        String sqlBill = "INSERT INTO bills (bill_id, customer_id, billed_by_user_id, total_amount, bill_date) VALUES (?, ?, ?, ?, ?)";
+        String sqlItem = "INSERT INTO bill_items (bill_id, item_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+
+        Connection conn = null;
+        boolean oldAutoCommit = true;
         try {
             conn = DBConnection.getInstance().getConnection();
-            // Start a transaction by disabling auto-commit
+            oldAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
-            // Step 1: Insert the main bill record into the 'bills' table
-            String billSql = "INSERT INTO bills (customer_id, billed_by_user_id, total_amount, bill_date) VALUES (?, ?, ?, ?)";
-            
-            // Use Statement.RETURN_GENERATED_KEYS to get the auto-incremented bill_id
-            try (PreparedStatement psBill = conn.prepareStatement(billSql, Statement.RETURN_GENERATED_KEYS)) {
-                psBill.setInt(1, bill.getCustomerId());
-                psBill.setInt(2, bill.getBilledByUserId());
-                psBill.setBigDecimal(3, bill.getTotalAmount());
-                psBill.setDate(4, bill.getBillDate());
-                psBill.executeUpdate();
+            try (PreparedStatement ps = conn.prepareStatement(sqlBill)) {
+                ps.setString(1, billId);
+                ps.setString(2, bill.getCustomerId());
+                ps.setInt(3, bill.getBilledByUserId());
+                ps.setBigDecimal(4, bill.getTotalAmount());
+                ps.setDate(5, bill.getBillDate());
+                ps.executeUpdate();
+            }
 
-                // Retrieve the generated bill_id
-                try (ResultSet generatedKeys = psBill.getGeneratedKeys()) {
-                    if (generatedKeys.next()) {
-                        billId = generatedKeys.getInt(1);
-                    } else {
-                        throw new SQLException("Creating bill failed, no ID obtained.");
+            if (bill.getItems() != null) {
+                try (PreparedStatement ps = conn.prepareStatement(sqlItem)) {
+                    for (BillItem bi : bill.getItems()) {
+                        ps.setString(1, billId);
+                        ps.setString(2, bi.getItemId());
+                        ps.setInt(3, bi.getQuantity());
+                        ps.setBigDecimal(4, bi.getUnitPrice());
+                        ps.addBatch();
                     }
+                    ps.executeBatch();
                 }
             }
 
-            // Step 2: Insert each item from the bill into the 'bill_items' table
-            String itemSql = "INSERT INTO bill_items (bill_id, item_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
-            try (PreparedStatement psItem = conn.prepareStatement(itemSql)) {
-                for (BillItem item : bill.getItems()) {
-                    psItem.setInt(1, billId); // Use the billId from the previous step
-                    psItem.setInt(2, item.getItemId());
-                    psItem.setInt(3, item.getQuantity());
-                    psItem.setBigDecimal(4, item.getUnitPrice());
-                    psItem.addBatch(); // Add the statement to a batch for efficient execution
-                }
-                psItem.executeBatch(); // Execute all item insert statements at once
-            }
-
-            // If all operations were successful, commit the transaction
             conn.commit();
-
-        } catch (SQLException e) {
-            // If any error occurs, roll back all changes made during the transaction
-            if (conn != null) {
-                try {
-                    System.err.println("Transaction is being rolled back");
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-            }
-            e.printStackTrace();
-            throw e; // Re-throw the exception so the servlet can handle it
+            return billId;
+        } catch (SQLException ex) {
+            if (conn != null) conn.rollback();
+            throw ex;
         } finally {
-            // Always restore the default auto-commit behavior
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
+            if (conn != null) conn.setAutoCommit(oldAutoCommit);
         }
-        return billId; // Return the new bill's ID
     }
 
-    /**
-     * Retrieves a single bill and all of its associated items from the database.
-     * @param billId The ID of the bill to retrieve.
-     * @return A Bill object complete with its items, or null if not found.
-     * @throws SQLException if a database access error occurs.
-     */
     @Override
-    public Bill getBillById(int billId) throws SQLException {
-        Bill bill = null;
-        // SQL to get bill details and the customer's name using a JOIN
-        String billSql = "SELECT b.*, c.first_name, c.last_name FROM bills b " +
-                         "JOIN customers c ON b.customer_id = c.customer_id WHERE b.bill_id = ?";
-        // SQL to get all items for a specific bill, including the item name from a JOIN
-        String itemsSql = "SELECT bi.*, i.item_name FROM bill_items bi " +
-                          "JOIN items i ON bi.item_id = i.item_id WHERE bi.bill_id = ?";
+    public Bill getBillById(String billId) throws SQLException {
+        // FIX 1: The SQL query now also selects the customer's ID.
+        String headSql =
+            "SELECT b.bill_id, b.bill_date, b.total_amount, b.customer_id, c.full_name AS customer_name " +
+            "FROM bills b LEFT JOIN customers c ON b.customer_id = c.customer_id " +
+            "WHERE b.bill_id = ?";
+
+        String itemsSql =
+            "SELECT bi.bill_item_id, bi.bill_id, bi.item_id, bi.quantity, bi.unit_price, i.item_name " +
+            "FROM bill_items bi LEFT JOIN items i ON bi.item_id = i.item_id " +
+            "WHERE bi.bill_id = ?";
 
         try (Connection conn = DBConnection.getInstance().getConnection()) {
-            // Step 1: Get the main bill details
-            try (PreparedStatement psBill = conn.prepareStatement(billSql)) {
-                psBill.setInt(1, billId);
-                try (ResultSet rsBill = psBill.executeQuery()) {
-                    if (rsBill.next()) {
+            Bill bill = null;
+            try (PreparedStatement ps = conn.prepareStatement(headSql)) {
+                ps.setString(1, billId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
                         bill = new Bill();
-                        bill.setBillId(rsBill.getInt("bill_id"));
-                        bill.setCustomerId(rsBill.getInt("customer_id"));
-                        bill.setTotalAmount(rsBill.getBigDecimal("total_amount"));
-                        bill.setBillDate(rsBill.getDate("bill_date"));
-                        bill.setCustomerName(rsBill.getString("first_name") + " " + rsBill.getString("last_name"));
+                        bill.setBillId(rs.getString("bill_id"));
+                        bill.setBillDate(rs.getDate("bill_date"));
+                        bill.setTotalAmount(rs.getBigDecimal("total_amount"));
+                        bill.setCustomerName(rs.getString("customer_name"));
+                        // FIX 2: The customer ID is now set on the Bill object.
+                        bill.setCustomerId(rs.getString("customer_id"));
+                    } else {
+                        return null; // No bill found with that ID
                     }
                 }
             }
 
-            // Step 2: If the bill was found, get its line items
-            if (bill != null) {
-                List<BillItem> items = new ArrayList<>();
-                try (PreparedStatement psItems = conn.prepareStatement(itemsSql)) {
-                    psItems.setInt(1, billId);
-                    try (ResultSet rsItems = psItems.executeQuery()) {
-                        while (rsItems.next()) {
-                            BillItem item = new BillItem();
-                            item.setItemName(rsItems.getString("item_name"));
-                            item.setQuantity(rsItems.getInt("quantity"));
-                            item.setUnitPrice(rsItems.getBigDecimal("unit_price"));
-                            items.add(item);
-                        }
+            // This part for fetching items was already correct.
+            List<BillItem> items = new ArrayList<>();
+            try (PreparedStatement ps = conn.prepareStatement(itemsSql)) {
+                ps.setString(1, billId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        BillItem it = new BillItem();
+                        it.setBillItemId(rs.getInt("bill_item_id"));
+                        it.setBillId(rs.getString("bill_id"));
+                        it.setItemId(rs.getString("item_id"));
+                        it.setItemName(rs.getString("item_name"));
+                        it.setQuantity(rs.getInt("quantity"));
+                        it.setUnitPrice(rs.getBigDecimal("unit_price"));
+                        items.add(it);
                     }
                 }
-                bill.setItems(items);
+            }
+            bill.setItems(items);
+            return bill;
+        }
+    }
+
+    @Override
+    public List<Bill> getAllBills() throws SQLException {
+        // NOTE: Also updated this method to include customer_id for consistency.
+        String sql =
+            "SELECT b.bill_id, b.bill_date, b.total_amount, b.customer_id, c.full_name AS customer_name " +
+            "FROM bills b LEFT JOIN customers c ON b.customer_id = c.customer_id " +
+            "ORDER BY b.bill_date DESC, b.bill_id DESC";
+
+        List<Bill> out = new ArrayList<>();
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                Bill b = new Bill();
+                b.setBillId(rs.getString("bill_id"));
+                b.setBillDate(rs.getDate("bill_date"));
+                b.setTotalAmount(rs.getBigDecimal("total_amount"));
+                b.setCustomerName(rs.getString("customer_name"));
+                b.setCustomerId(rs.getString("customer_id"));
+                out.add(b);
             }
         }
-        return bill;
+        return out;
+    }
+    
+    @Override
+    public java.math.BigDecimal getTodaysSales() throws SQLException {
+        String sql = "SELECT SUM(total_amount) FROM bills WHERE DATE(bill_date) = CURDATE()";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                java.math.BigDecimal total = rs.getBigDecimal(1);
+                return (total == null) ? java.math.BigDecimal.ZERO : total;
+            }
+        }
+        return java.math.BigDecimal.ZERO;
     }
 }

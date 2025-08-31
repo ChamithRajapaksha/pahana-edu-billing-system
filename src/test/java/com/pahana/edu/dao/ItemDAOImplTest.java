@@ -3,8 +3,6 @@ package com.pahana.edu.dao;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.math.BigDecimal;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,21 +22,18 @@ class ItemDAOImplTest {
         System.out.println("Running test: testFullCrudCycleForItem");
         
         // 1. ADD: Create and add a new test item
-        String testItemName = "Test Book - JUnit";
         Item newItem = new Item();
-        newItem.setItemName(testItemName);
+        // CORRECTED: Generate and set the ID before saving
+        String itemId = itemDAO.generateNewItemId();
+        newItem.setItemId(itemId);
+        newItem.setItemName("Test Book - JUnit");
         newItem.setUnitPrice(new BigDecimal("999.99"));
         newItem.setStockQuantity(10);
         
         itemDAO.addItem(newItem);
         
         // 2. GET: Retrieve the item to verify it was added
-        // We need to find the ID first, as it's auto-incremented
-        List<Item> allItems = itemDAO.getAllItems();
-        Item retrievedItem = allItems.stream()
-                                     .filter(item -> testItemName.equals(item.getItemName()))
-                                     .findFirst()
-                                     .orElse(null);
+        Item retrievedItem = itemDAO.getItemById(itemId);
         
         assertNotNull(retrievedItem, "Item should be found in the database after adding.");
         assertEquals(10, retrievedItem.getStockQuantity(), "Stock quantity should match.");

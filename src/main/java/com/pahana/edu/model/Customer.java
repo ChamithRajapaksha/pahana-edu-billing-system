@@ -1,21 +1,26 @@
 package com.pahana.edu.model;
 
 public class Customer {
-    private int customerId;
-    private String firstName;
-    private String lastName;
+    // DB Column Constants for safety
+    public static final String COL_ID = "customer_id";
+    public static final String COL_FULL_NAME = "full_name";
+    public static final String COL_NIC = "nic_number";
+    public static final String COL_EMAIL = "email";
+    public static final String COL_ADDRESS = "address";
+    public static final String COL_TELEPHONE = "telephone";
+
+    private String customerId;
+    private String fullName;
     private String nicNumber;
     private String email;
     private String address;
     private String telephone;
 
-    // Getters and Setters...
-    public int getCustomerId() { return customerId; }
-    public void setCustomerId(int customerId) { this.customerId = customerId; }
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
+    // Getters and Setters
+    public String getCustomerId() { return customerId; }
+    public void setCustomerId(String customerId) { this.customerId = customerId; }
+    public String getFullName() { return fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName; }
     public String getNicNumber() { return nicNumber; }
     public void setNicNumber(String nicNumber) { this.nicNumber = nicNumber; }
     public String getEmail() { return email; }

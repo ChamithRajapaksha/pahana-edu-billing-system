@@ -3,12 +3,12 @@ package com.pahana.edu.controller;
 import com.pahana.edu.model.User;
 import com.pahana.edu.service.AuthService;
 
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 
 @WebServlet("/login")
@@ -18,7 +18,7 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         // Forward any GET requests to the login page
-        request.getRequestDispatcher("login.jsp").forward(request, response);
+        request.getRequestDispatcher("/login.jsp").forward(request, response);
     }
     
     @Override
@@ -37,18 +37,18 @@ public class LoginServlet extends HttpServlet {
             // Redirect the user based on their role
             if ("ADMIN".equals(user.getRole())) {
                 // Admins go to the dynamic admin dashboard servlet
-                response.sendRedirect("adminDashboard"); 
+                response.sendRedirect(request.getContextPath() + "/adminDashboard"); 
             } else if ("CASHIER".equals(user.getRole())) {
                 // Cashiers go to their new, dedicated dashboard page
-                response.sendRedirect("cashierDashboard.jsp");
+                response.sendRedirect(request.getContextPath() + "/cashierDashboard.jsp");
             } else {
                 // If the role is unknown, send them back to the login page
-                response.sendRedirect("login.jsp");
+                response.sendRedirect(request.getContextPath() + "/login.jsp");
             }
         } else {
             // Failed login: Set an error message and forward back to the login page
             request.setAttribute("errorMessage", "Invalid username or password. Please try again.");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            request.getRequestDispatcher("/login.jsp").forward(request, response);
         }
     }
 }

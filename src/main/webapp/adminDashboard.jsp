@@ -1,13 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
-
-<%-- Security Check: Redirect to login if user is not logged in or not an ADMIN --%>
-<%
-    if (session.getAttribute("user") == null || !((com.pahana.edu.model.User)session.getAttribute("user")).getRole().equals("ADMIN")) {
-        response.sendRedirect("login.jsp");
-    }
-%>
+<%@ taglib prefix="c"   uri="jakarta.tags.core" %>
+<%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -33,7 +26,7 @@
 <body>
 
     <div class="page-wrapper">
-        <%-- The sidebar is included here. The 'activePage' parameter highlights the correct link. [cite: 2] --%>
+        <%-- The sidebar is included here. The 'activePage' parameter highlights the correct link. --%>
         <jsp:include page="sidebar.jsp">
             <jsp:param name="activePage" value="dashboard"/>
         </jsp:include>
@@ -46,7 +39,7 @@
                 </div>
 
                 <div class="row">
-                    <%-- Total Users Card [cite: 13] --%>
+                    <%-- Total Users Card --%>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card stat-card gradient-1 shadow-sm">
                             <div class="card-body">
@@ -64,7 +57,7 @@
                         </div>
                     </div>
 
-                    <%-- Total Customers Card [cite: 17] --%>
+                    <%-- Total Customers Card --%>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card stat-card gradient-2 shadow-sm">
                             <div class="card-body">
@@ -82,7 +75,7 @@
                         </div>
                     </div>
 
-                    <%-- Items in Stock Card [cite: 20] --%>
+                    <%-- Items in Stock Card --%>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card stat-card gradient-3 shadow-sm">
                             <div class="card-body">
@@ -100,7 +93,7 @@
                         </div>
                     </div>
 
-                    <%-- Today's Sales Card [cite: 23] --%>
+                    <%-- Today's Sales Card --%>
                     <div class="col-lg-3 col-md-6 mb-4">
                         <div class="card stat-card gradient-4 shadow-sm">
                             <div class="card-body">

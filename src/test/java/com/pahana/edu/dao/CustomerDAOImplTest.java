@@ -6,8 +6,6 @@ import org.junit.jupiter.api.Test;
 
 import com.pahana.edu.model.Customer;
 
-import java.util.List;
-
 class CustomerDAOImplTest {
     private CustomerDAO customerDAO;
 
@@ -22,31 +20,33 @@ class CustomerDAOImplTest {
         
         // 1. ADD a new test customer
         Customer newCustomer = new Customer();
-        newCustomer.setFirstName("JUnit");
-        newCustomer.setLastName("Tester");
+        // CORRECTED: Generate and set the ID before saving
+        String customerId = customerDAO.generateNewCustomerId();
+        newCustomer.setCustomerId(customerId);
+        // CORRECTED: Use setFullName
+        newCustomer.setFullName("JUnit Tester");
         newCustomer.setEmail("junit.test@example.com");
         newCustomer.setNicNumber("999999999V");
+        
         customerDAO.addCustomer(newCustomer);
-        System.out.println("ADD: Customer 'JUnit Tester' added.");
+        System.out.println("ADD: Customer 'JUnit Tester' added with ID " + customerId);
 
-        // 2. GET the customer back to verify it was added
-        List<Customer> allCustomers = customerDAO.getAllCustomers();
-        Customer retrievedCustomer = allCustomers.stream()
-                                             .filter(c -> "junit.test@example.com".equals(c.getEmail()))
-                                             .findFirst()
-                                             .orElse(null);
+        // 2. GET the customer back using the known ID
+        Customer retrievedCustomer = customerDAO.getCustomerById(customerId);
         
         assertNotNull(retrievedCustomer, "Customer should be found after adding.");
+        assertEquals("JUnit Tester", retrievedCustomer.getFullName());
         System.out.println("GET: Customer successfully retrieved from DB.");
 
         // 3. UPDATE the customer's details
-        retrievedCustomer.setFirstName("JUnit Updated");
+        retrievedCustomer.setFullName("JUnit Updated");
         customerDAO.updateCustomer(retrievedCustomer);
         System.out.println("UPDATE: Customer name updated.");
         
         // 4. VERIFY the update
         Customer updatedCustomer = customerDAO.getCustomerById(retrievedCustomer.getCustomerId());
-        assertEquals("JUnit Updated", updatedCustomer.getFirstName(), "First name should be updated.");
+        // CORRECTED: Check getFullName
+        assertEquals("JUnit Updated", updatedCustomer.getFullName(), "Full name should be updated.");
         System.out.println("VERIFY: Customer name update confirmed.");
         
         // 5. DELETE the customer to clean up

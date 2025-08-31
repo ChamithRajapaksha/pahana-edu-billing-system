@@ -336,6 +336,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(142, 84, 233, 0.25);
 }
 
+
 /* ---- Responsive Adjustments ---- */
 @media (max-width: 768px) {
     .page-wrapper {
@@ -357,4 +358,77 @@ body {
     .main-content {
         height: auto;
     }
+}
+
+/* ---- FIX for Table Link Visibility ---- */
+.table a.table-link {
+    color: #4dd0e1; /* A bright cyan color for high visibility */
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s ease;
+}
+
+.table a.table-link:hover {
+    color: #ffffff;
+    text-decoration: underline;
+}
+
+/* ---- FINAL: Corrected Styling for Bill Details ---- */
+.invoice-details strong {
+    color: rgba(255, 255, 255, 0.7); /* Muted color for the label */
+    font-weight: 500;
+    font-size: 1em;
+    margin-right: 10px; /* Space between label and value */
+}
+
+.invoice-details .invoice-value {
+    font-size: 1.2em;
+    font-weight: 600;
+    color: #FFFFFF; /* Bright white for the actual data */
+}
+
+.invoice-details .invoice-id {
+    color: #4dd0e1; /* Special bright color for the Bill ID */
+    font-weight: 700;
+}
+
+/* Add some space between the rows on the right side */
+.invoice-details .col-sm-6 > div {
+    margin-bottom: 0.5rem;
+}
+
+/* === Visibility boost for the top invoice info row === */
+.invoice-details{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 12px;
+  padding: 12px 16px;
+}
+
+.invoice-details strong{
+  color: #E9EDFF;          /* brighter label */
+  font-weight: 600;
+  letter-spacing: .2px;
+  font-size: 1rem;
+}
+
+.invoice-details .invoice-value{
+  color: #FFFFFF;          /* pure white value */
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.invoice-details .invoice-id{
+  color: #4DD0E1;          /* accent for Bill # */
+  font-weight: 800;
+  padding: 2px 8px;        /* make it a pill */
+  border-radius: 6px;
+  background: rgba(77,208,225,0.15);
+  border: 1px solid rgba(77,208,225,0.35);
+  text-shadow: 0 0 6px rgba(77,208,225,0.35);
+}
+
+/* tighter spacing between stacked rows on small screens */
+@media (max-width: 576px){
+  .invoice-details .col-sm-6 > div { margin-bottom: .35rem; }
 }

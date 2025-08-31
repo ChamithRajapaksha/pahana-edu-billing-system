@@ -128,4 +128,22 @@ public class UserDAOImpl implements UserDAO {
         user.setRole(rs.getString("role"));
         return user;
     }
+
+    /**
+     * This is the new method that was missing.
+     * It counts the total number of users in the database.
+     */
+    @Override
+    public int countAllUsers() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM users";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1); // Get the count from the first column
+            }
+        }
+        // Return 0 if no users are found or an error occurs that is not thrown
+        return 0;
+    }
 }

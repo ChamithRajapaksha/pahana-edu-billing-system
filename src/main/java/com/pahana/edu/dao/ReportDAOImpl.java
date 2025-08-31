@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -70,7 +71,8 @@ public class ReportDAOImpl implements ReportDAO {
     @Override
     public List<Bill> getRecentBills(int limit) throws SQLException {
         List<Bill> recentBills = new ArrayList<>();
-        String sql = "SELECT b.*, c.first_name, c.last_name FROM bills b " +
+        // CORRECTED: SQL now uses the 'full_name' column
+        String sql = "SELECT b.bill_id, b.bill_date, b.total_amount, c.full_name FROM bills b " +
                      "JOIN customers c ON b.customer_id = c.customer_id " +
                      "ORDER BY b.bill_date DESC, b.bill_id DESC LIMIT ?";
         try (Connection conn = DBConnection.getInstance().getConnection();
@@ -79,11 +81,12 @@ public class ReportDAOImpl implements ReportDAO {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Bill bill = new Bill();
-                    bill.setBillId(rs.getInt("bill_id"));
+                    // CORRECTED: Reads the bill_id as a String
+                    bill.setBillId(rs.getString("bill_id"));
                     bill.setBillDate(rs.getDate("bill_date"));
                     bill.setTotalAmount(rs.getBigDecimal("total_amount"));
-                    // Assumes you have added a 'customerName' field to your Bill model
-                    bill.setCustomerName(rs.getString("first_name") + " " + rs.getString("last_name"));
+                    // CORRECTED: Reads the full_name directly
+                    bill.setCustomerName(rs.getString("full_name"));
                     recentBills.add(bill);
                 }
             }
@@ -93,7 +96,6 @@ public class ReportDAOImpl implements ReportDAO {
 
     @Override
     public Map<String, Integer> getTopSellingItems(int limit) throws SQLException {
-        // Using LinkedHashMap to preserve the order of top items
         Map<String, Integer> topItems = new LinkedHashMap<>();
         String sql = "SELECT i.item_name, SUM(bi.quantity) as total_sold FROM bill_items bi " +
                      "JOIN items i ON bi.item_id = i.item_id " +

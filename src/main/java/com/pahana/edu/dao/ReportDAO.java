@@ -12,14 +12,12 @@ import java.util.Map;
 public interface ReportDAO {
 
     // --- Methods for the Admin Dashboard ---
-
     long getTotalUserCount() throws SQLException;
     long getTotalCustomerCount() throws SQLException;
     long getTotalItemCount() throws SQLException;
     BigDecimal getTodaySalesTotal() throws SQLException;
 
     // --- Methods for the Full Reports Page ---
-
     List<Bill> getRecentBills(int limit) throws SQLException;
     Map<String, Integer> getTopSellingItems(int limit) throws SQLException;
 }
