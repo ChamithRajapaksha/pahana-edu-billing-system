@@ -5,7 +5,7 @@
 
   <groupId>com.pahana.edu</groupId>
   <artifactId>PahanaEduBilling</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+  <version>1.20</version>
   <packaging>war</packaging>
 
   <properties>
